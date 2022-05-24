@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{4F5891BE-28B4-46BD-868E-84EC1E687370}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="OrionNotations.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\samples\OrionNotation\OrionNotation.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="OrionNotations">
+        <MSBuild Projects="OrionNotations.dproj"/>
+    </Target>
+    <Target Name="OrionNotations:Clean">
+        <MSBuild Projects="OrionNotations.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="OrionNotations:Make">
+        <MSBuild Projects="OrionNotations.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="OrionNotation">
+        <MSBuild Projects="..\samples\OrionNotation\OrionNotation.dproj"/>
+    </Target>
+    <Target Name="OrionNotation:Clean">
+        <MSBuild Projects="..\samples\OrionNotation\OrionNotation.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="OrionNotation:Make">
+        <MSBuild Projects="..\samples\OrionNotation\OrionNotation.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="OrionNotations;OrionNotation"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="OrionNotations:Clean;OrionNotation:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="OrionNotations:Make;OrionNotation:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

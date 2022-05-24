@@ -1,0 +1,54 @@
+package OrionNotations;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  dbrtl,
+  fmx,
+  FireDAC,
+  FireDACCommonDriver,
+  FireDACCommon,
+  FireDACIBDriver,
+  fmxFireDAC,
+  FireDACSqliteDriver;
+
+contains
+  Orion.Notations.Interfaces in 'Orion.Notations.Interfaces.pas',
+  Orion.Notations in 'Orion.Notations.pas',
+  Orion.Notations.Types in 'Orion.Notations.Types.pas',
+  Orion.Notations.Data.Engine in 'Orion.Notations.Data.Engine.pas',
+  Orion.Notations.Processors.FireDAC in 'Orion.Notations.Processors.FireDAC.pas',
+  Orion.Notations.Processors.Factory in 'Orion.Notations.Processors.Factory.pas',
+  Orion.Notations.Processors.SQLite in 'Orion.Notations.Processors.SQLite.pas',
+  Orion.Notations.Statements.Update in 'Orion.Notations.Statements.Update.pas',
+  Orion.Notations.Statements.Select in 'Orion.Notations.Statements.Select.pas',
+  Orion.Notations.Statements.Delete in 'Orion.Notations.Statements.Delete.pas',
+  Orion.Notations.Statements.Insert in 'Orion.Notations.Statements.Insert.pas';
+
+end.
