@@ -6,9 +6,6 @@
         <Projects Include="OrionNotations.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="..\samples\OrionNotation\OrionNotation.dproj">
-            <Dependencies/>
-        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -26,23 +23,14 @@
     <Target Name="OrionNotations:Make">
         <MSBuild Projects="OrionNotations.dproj" Targets="Make"/>
     </Target>
-    <Target Name="OrionNotation">
-        <MSBuild Projects="..\samples\OrionNotation\OrionNotation.dproj"/>
-    </Target>
-    <Target Name="OrionNotation:Clean">
-        <MSBuild Projects="..\samples\OrionNotation\OrionNotation.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="OrionNotation:Make">
-        <MSBuild Projects="..\samples\OrionNotation\OrionNotation.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="OrionNotations;OrionNotation"/>
+        <CallTarget Targets="OrionNotations"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="OrionNotations:Clean;OrionNotation:Clean"/>
+        <CallTarget Targets="OrionNotations:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="OrionNotations:Make;OrionNotation:Make"/>
+        <CallTarget Targets="OrionNotations:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

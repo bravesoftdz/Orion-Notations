@@ -117,9 +117,9 @@
         <DCCReference Include="Orion.Notations.pas"/>
         <DCCReference Include="Orion.Notations.Types.pas"/>
         <DCCReference Include="Orion.Notations.Data.Engine.pas"/>
-        <DCCReference Include="Orion.Notations.Processors.FireDAC.pas"/>
+        <DCCReference Include="Orion.Notations.Processors.FireDAC.FireBird.pas"/>
         <DCCReference Include="Orion.Notations.Processors.Factory.pas"/>
-        <DCCReference Include="Orion.Notations.Processors.SQLite.pas"/>
+        <DCCReference Include="Orion.Notations.Processors.FireDAC.SQLite.pas"/>
         <DCCReference Include="Orion.Notations.Statements.Update.pas"/>
         <DCCReference Include="Orion.Notations.Statements.Select.pas"/>
         <DCCReference Include="Orion.Notations.Statements.Delete.pas"/>
@@ -875,8 +875,8 @@
                 <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Linux64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>

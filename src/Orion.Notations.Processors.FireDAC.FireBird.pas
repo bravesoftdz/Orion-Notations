@@ -1,4 +1,4 @@
-unit Orion.Notations.Processors.SQLite;
+unit Orion.Notations.Processors.FireDAC.Firebird;
 
 interface
 
@@ -18,9 +18,9 @@ uses
   FireDAC.DatS,
   FireDAC.DApt.Intf,
   FireDAC.DApt,
-  FireDAC.FMXUI.Wait,
+  FireDAC.Phys.FBDef,
   {$IFDEF FMX}
-
+    FireDAC.FMXUI.Wait,
   {$ELSEIFDEF VCL}
     FireDAC.VCLUI.Wait,
   {$ELSE}
@@ -31,18 +31,13 @@ uses
   FireDAC.Phys.FB,
   Data.DB,
   FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client,
-  FireDAC.Phys.SQLiteWrapper.Stat,
-  FireDAC.Phys.SQLiteDef,
-  FireDAC.Phys.SQLite,
-  FireDAC.Phys.SQLiteWrapper;
+  FireDAC.Comp.Client;
 
 type
-  TOrionNotationsProcessorFireDACSQLite = class(TInterfacedObject, iOrionNotationProcessor)
+  TOrionNotationsProcessorFireDACFirebird = class(TInterfacedObject, iOrionNotationProcessor)
   private
     FDBConnection : TFDConnection;
-    FDriverLink : TFDPhysSQLiteDriverLink;
-    FWaitCursor : TFDGUIxWaitCursor;
+    FDriverLink : TFDPhysFBDriverLink;
     FDBQuery : TFDQuery;
     FStatementType : TDataProcessorStatementType;
   public
@@ -65,52 +60,48 @@ implementation
 uses
   System.SysUtils;
 
-{ TOrionNotationsProcessorFireDACSQLite }
+{ TOrionNotationsProcessorFireDACFirebird }
 
-function TOrionNotationsProcessorFireDACSQLite.Commit: iOrionNotationProcessor;
+function TOrionNotationsProcessorFireDACFirebird.Commit: iOrionNotationProcessor;
 begin
   Result := Self;
   FDBConnection.Commit;
 end;
 
-function TOrionNotationsProcessorFireDACSQLite.Configurations(aPath, aUsername, aPassword, aServer: string; aPort: integer): iOrionNotationProcessor;
+function TOrionNotationsProcessorFireDACFirebird.Configurations(aPath, aUsername, aPassword, aServer: string; aPort: integer): iOrionNotationProcessor;
 begin
   Result := Self;
-  FDBConnection.Params.DriverID := 'SQLite';
+  FDBConnection.Params.DriverID := 'FB';
   FDBConnection.Params.Database := aPath;
   FDBConnection.Params.UserName := aUserName;
   FDBConnection.Params.Password := aPassword;
   FDBConnection.Params.AddPair('Port', aPort.ToString);
-  FDBConnection.Params.AddPair('LockingMode', 'Normal');
   FDBConnection.Connected := False;
   FDBConnection.Connected := True;
 end;
 
-constructor TOrionNotationsProcessorFireDACSQLite.Create;
+constructor TOrionNotationsProcessorFireDACFirebird.Create;
 begin
   FDBConnection       := TFDConnection.Create(nil);
-  FDriverLink         := TFDPhysSQLiteDriverLink.Create(nil);
-  FDriverLink.EngineLinkage := slDynamic;
-  FWaitCursor         := TFDGUIxWaitCursor.Create(nil);
+  FDriverLink         := TFDPhysFBDriverLink.Create(nil);
   FDBQuery            := TFDQuery.Create(nil);
   FDBQuery.Connection := FDBConnection;
 end;
 
-function TOrionNotationsProcessorFireDACSQLite.Dataset: TDataset;
+function TOrionNotationsProcessorFireDACFirebird.Dataset: TDataset;
 begin
   Result := FDBQuery;
 end;
 
-destructor TOrionNotationsProcessorFireDACSQLite.Destroy;
+destructor TOrionNotationsProcessorFireDACFirebird.Destroy;
 begin
   FDBQuery.DisposeOf;
   FDBConnection.DisposeOf;
   FDriverLink.DisposeOf;
-  FWaitCursor.DisposeOf;
   inherited;
 end;
 
-function TOrionNotationsProcessorFireDACSQLite.Execute: iOrionNotationProcessor;
+function TOrionNotationsProcessorFireDACFirebird.Execute: iOrionNotationProcessor;
 begin
   Result := Self;
   case FStatementType of
@@ -121,31 +112,30 @@ begin
   end;
 end;
 
-class function TOrionNotationsProcessorFireDACSQLite.New: iOrionNotationProcessor;
+class function TOrionNotationsProcessorFireDACFirebird.New: iOrionNotationProcessor;
 begin
   Result := Self.Create;
 end;
 
-function TOrionNotationsProcessorFireDACSQLite.RollBack: iOrionNotationProcessor;
+function TOrionNotationsProcessorFireDACFirebird.RollBack: iOrionNotationProcessor;
 begin
   Result := Self;
   FDBConnection.Rollback;
 end;
 
-function TOrionNotationsProcessorFireDACSQLite.StartTransaction: iOrionNotationProcessor;
+function TOrionNotationsProcessorFireDACFirebird.StartTransaction: iOrionNotationProcessor;
 begin
   Result := Self;
   FDBConnection.StartTransaction;
-  FDBQuery.SQL.Clear;
 end;
 
-function TOrionNotationsProcessorFireDACSQLite.StateMent(aValue: string): iOrionNotationProcessor;
+function TOrionNotationsProcessorFireDACFirebird.StateMent(aValue: string): iOrionNotationProcessor;
 begin
   Result := Self;
   FDBQuery.SQL.Text := aValue;
 end;
 
-function TOrionNotationsProcessorFireDACSQLite.StatementType(aValue: TDataProcessorStatementType): iOrionNotationProcessor;
+function TOrionNotationsProcessorFireDACFirebird.StatementType(aValue: TDataProcessorStatementType): iOrionNotationProcessor;
 begin
   Result := Self;
   FStatementType := aValue;

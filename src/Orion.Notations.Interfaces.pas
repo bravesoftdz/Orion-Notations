@@ -33,6 +33,8 @@ type
     function GetObject : TObject;
     function ObjectType(aObjectType : TClass) : iOrionNotation; overload;
     function ObjectType : TClass; overload;
+    function Owner : iOrionNotation; overload;
+    function Owner(aValue : iOrionNotation) : iOrionNotation; overload;
     function SetDataSet(aDataset : TDataset) : iOrionNotation;
     function TableName(aValue : string) : iOrionNotation; overload;
     function TableName : string; overload;

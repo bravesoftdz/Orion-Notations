@@ -17,7 +17,7 @@ type
 implementation
 
 uses
-  Orion.Notations.Processors.FireDAC, Orion.Notations.Processors.SQLite;
+  Orion.Notations.Processors.FireDAC.FireBird, Orion.Notations.Processors.FireDAC.SQLite;
 
 { TOrionNotationsProcessorsFactory }
 

@@ -23,23 +23,26 @@ uses
   Orion.Notations.Interfaces,
   Orion.Notations.Data.Engine,
   Orion.Notations.Processors.Factory,
-  Rest.JSON;
+  Rest.JSON,
+  entity.user;
 
 type
   TForm1 = class(TForm)
-    Button1: TButton;
-    Memo1: TMemo;
-    Button2: TButton;
-    Button3: TButton;
-    Button4: TButton;
-    procedure Button1Click(Sender: TObject);
+    ButtonInsert: TButton;
+    MemoLog: TMemo;
+    ButtonUpdate: TButton;
+    ButtonSelect: TButton;
+    ButtonDelete: TButton;
+    procedure ButtonInsertClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
+    procedure ButtonUpdateClick(Sender: TObject);
+    procedure ButtonSelectClick(Sender: TObject);
+    procedure ButtonDeleteClick(Sender: TObject);
   private
     FUserNotation : iOrionNotation;
     FContactNotation : iOrionNotation;
     FNotationDataEngine : iOrionNotationDataEngine;
+    procedure Log;
   public
     { Public declarations }
   end;
@@ -49,12 +52,9 @@ var
 
 implementation
 
-uses
-  entity.user;
-
 {$R *.fmx}
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TForm1.ButtonInsertClick(Sender: TObject);
 begin
   var User := TUser.Create;
   try
@@ -73,19 +73,13 @@ begin
     FUserNotation.SetObject(User);
     FNotationDataEngine.SetNotation(FUserNotation);
     FNotationDataEngine.ProcessNotation(TStatementType.InsertWithReturn);
-
-    Memo1.Lines.Clear;
-    for var lStatement in FNotationDataEngine.Statements do
-    begin
-      Memo1.Lines.Add(lStatement.Value);
-    end;
-
+    Log;
   finally
     User.DisposeOf;
   end;
 end;
 
-procedure TForm1.Button2Click(Sender: TObject);
+procedure TForm1.ButtonUpdateClick(Sender: TObject);
 begin
   var User := TUser.Create;
   try
@@ -111,17 +105,13 @@ begin
     FUserNotation.SetObject(User);
     FNotationDataEngine.SetNotation(FUserNotation);
     FNotationDataEngine.ProcessNotation(TStatementType.Update);
-    Memo1.Lines.Clear;
-    for var lStatement in FNotationDataEngine.Statements do
-    begin
-      Memo1.Lines.Add(lStatement.Value);
-    end;
+    Log;
   finally
     User.DisposeOf;
   end;
 end;
 
-procedure TForm1.Button3Click(Sender: TObject);
+procedure TForm1.ButtonSelectClick(Sender: TObject);
 begin
   var User := TUser.Create;
   try
@@ -130,13 +120,25 @@ begin
     FNotationDataEngine.SetNotation(FUserNotation);
     FNotationDataEngine.ProcessNotation(TStatementType.Select);
 
-    Memo1.Lines.Clear;
-    for var lStatement in FNotationDataEngine.Statements do
-    begin
-      Memo1.Lines.Add(lStatement.Value);
-    end;
+    Log;
     var lJSON := TJson.ObjectToJsonString(User);
-    Memo1.Lines.Add(lJSON);
+    MemoLog.Lines.Add(lJSON);
+  finally
+    User.DisposeOf;
+  end;
+end;
+
+procedure TForm1.ButtonDeleteClick(Sender: TObject);
+begin
+  var User := TUser.Create;
+  try
+    User.ID := 6;
+    FUserNotation.SetObject(User);
+    FNotationDataEngine.SetNotation(FUserNotation);
+    FNotationDataEngine.ProcessNotation(TStatementType.Delete);
+
+    Log;
+    var lJSON := TJson.ObjectToJsonString(User);
   finally
     User.DisposeOf;
   end;
@@ -168,6 +170,15 @@ begin
   var lNotationProcessor := TOrionNotationsProcessorsFactory.New.Build(TProcessorDataBase.SQLite);
   lNotationProcessor.Configurations(Path, UserName, Password, Server, Port);
   FNotationDataEngine := TOrionNotationDataEngine.New(lNotationProcessor);
+end;
+
+procedure TForm1.Log;
+begin
+  MemoLog.Lines.Clear;
+  for var lStatement in FNotationDataEngine.Statements do
+  begin
+    MemoLog.Lines.Add(lStatement.Value);
+  end;
 end;
 
 end.

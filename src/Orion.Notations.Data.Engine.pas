@@ -17,7 +17,7 @@ type
     FNotationProcessor : iOrionNotationProcessor;
     FStatementsValues : TList<iNotationStatementValue>;
     FPrimaryKeyValue : string;
-
+    FPersist : boolean;
     procedure ProcessStatementSelect;
     procedure ProcessStatementInsert;
     function ProcessStatementInsertWithReturn : string;
@@ -26,9 +26,9 @@ type
     procedure InternalResolveToObject(aObject : TObject; aNotation : iOrionNotation; aDataset : TDataset);
     procedure InternalResolveToObjectList(aOwnerObject : TObject; aObjectListPropertyName : string; aStatement : iNotationStatementValue; aDataset : TDataset);
   public
-    constructor Create(aOrionNotationProcessor : iOrionNotationProcessor);
+    constructor Create(aOrionNotationProcessor : iOrionNotationProcessor; aPersist :boolean = True);
     destructor Destroy; override;
-    class function New(aOrionNotationProcessor : iOrionNotationProcessor) : iOrionNotationDataEngine;
+    class function New(aOrionNotationProcessor : iOrionNotationProcessor; aPersist :boolean = True) : iOrionNotationDataEngine;
 
     function SetNotation(aNotation : iOrionNotation) : iOrionNotationDataEngine;
     function ProcessNotation (aStatementType : TStatementType): string;
@@ -39,9 +39,10 @@ implementation
 
 { TOrionNotationDataEngine }
 
-constructor TOrionNotationDataEngine.Create(aOrionNotationProcessor : iOrionNotationProcessor);
+constructor TOrionNotationDataEngine.Create(aOrionNotationProcessor : iOrionNotationProcessor; aPersist :boolean);
 begin
   FNotationProcessor := aOrionNotationProcessor;
+  FPersist := aPersist;
 end;
 
 destructor TOrionNotationDataEngine.Destroy;
@@ -118,9 +119,9 @@ begin
   end;
 end;
 
-class function TOrionNotationDataEngine.New(aOrionNotationProcessor : iOrionNotationProcessor) : iOrionNotationDataEngine;
+class function TOrionNotationDataEngine.New(aOrionNotationProcessor : iOrionNotationProcessor; aPersist :boolean) : iOrionNotationDataEngine;
 begin
-  Result := Self.Create(aOrionNotationProcessor);
+  Result := Self.Create(aOrionNotationProcessor, aPersist);
 end;
 
 function TOrionNotationDataEngine.Statements: TList<iNotationStatementValue>;
@@ -141,7 +142,38 @@ end;
 
 procedure TOrionNotationDataEngine.ProcessStatementDelete;
 begin
+  FStatementsValues := FNotation.BuildStatement(TStatementType.Delete);
+  FPrimaryKeyValue := '';
+  try
+    if FStatementsValues.Count = 0 then
+      Exit;
 
+    FNotationProcessor.StartTransaction;
+    FNotationProcessor.StatementType(TDataProcessorStatementType.Write);
+
+    for var I := 0 to Pred(FStatementsValues.Count) do
+    begin
+      if I > 0 then
+      begin
+        FStatementsValues.Items[i].UpdateField(FNotation.ForeignKey, FPrimaryKeyValue);
+        FNotationProcessor.StatementType(TDataProcessorStatementType.Write);
+      end;
+
+      FNotationProcessor.StateMent(FStatementsValues.Items[i].Value);
+      FNotationProcessor.Execute;
+
+      if (FStatementsValues.Count > 1) and (I = 0) then
+          FPrimaryKeyValue := FStatementsValues.Items[I].GetPairValue(FNotation.GetPKTableName);
+    end;
+
+    if FPersist then
+      FNotationProcessor.Commit;
+  except on E: Exception do
+    begin
+      FNotationProcessor.RollBack;
+      raise Exception.Create(E.Message);
+    end;
+  end;
 end;
 
 procedure TOrionNotationDataEngine.ProcessStatementInsert;
@@ -172,7 +204,8 @@ begin
           FPrimaryKeyValue := FNotationProcessor.Dataset.FieldByName(FNotation.GetPKTableName).AsString;
       end;
     end;
-    FNotationProcessor.Commit;
+    if FPersist then
+      FNotationProcessor.Commit;
   except on E: Exception do
     begin
       FNotationProcessor.RollBack;
@@ -251,7 +284,9 @@ begin
       if (FStatementsValues.Count > 1) and (I = 0) then
           FPrimaryKeyValue := FStatementsValues.Items[I].GetPairValue(FNotation.GetPKTableName);
     end;
-    FNotationProcessor.Commit;
+
+    if FPersist then
+      FNotationProcessor.Commit;
   except on E: Exception do
     begin
       FNotationProcessor.RollBack;

@@ -24,6 +24,8 @@ type
     FBuildStatement : TList<iNotationStatementValue>;
     FStatementItens : TList<iNotationStatementValue>;
     FForeingKey : string;
+    [weak]
+    FOwner : iOrionNotation;
     procedure SetStatementItensInResult(aResult : TList<iNotationStatementValue>);
     procedure AddPair(aProperty : TRttiProperty; aObject : TObject; aNotation : TNotationData; aIsDateField : boolean; aPairs : TStringList; aSQLType : TStatementType);
 
@@ -37,14 +39,16 @@ type
     procedure BuildSQLSelectList(aObject : TObject; aNotationItem : TNotationData);
     procedure BuildSQLDeleteList(aObject : TObject; aNotationItem : TNotationData);
   public
-    constructor Create;
+    constructor Create(aOwner : iOrionNotation = nil);
     destructor Destroy; override;
-    class function New : iOrionNotation;
+    class function New(aOwner : iOrionNotation = nil) : iOrionNotation;
 
     function SetObject(aObject : TObject) : iOrionNotation;
     function GetObject : TObject;
     function ObjectType(aObjectType : TClass) : iOrionNotation; overload;
     function ObjectType : TClass; overload;
+    function Owner : iOrionNotation; overload;
+    function Owner(aValue : iOrionNotation) : iOrionNotation; overload;
     function SetDataSet(aDataset : TDataset) : iOrionNotation;
     function TableName(aValue : string) : iOrionNotation; overload;
     function TableName : string; overload;
@@ -65,7 +69,8 @@ uses
   System.SysUtils,
   Orion.Notations.Statements.Insert,
   Orion.Notations.Statements.Update,
-  Orion.Notations.Statements.Select;
+  Orion.Notations.Statements.Select,
+  Orion.Notations.Statements.Delete;
 
 { TOrionNotation }
 
@@ -88,6 +93,7 @@ end;
 function TOrionNotation.AddNotation(aPropertyName: string; aNotation: iOrionNotation): iOrionNotation;
 begin
   Result := Self;
+  aNotation.Owner(Self);
   var lNotacaoItem : TNotationData;
   lNotacaoItem.PropertyName := aPropertyName;
   lNotacaoItem.Notacao      := aNotation;
@@ -146,7 +152,6 @@ function TOrionNotation.BuildSqLDelete(aSetByPK : boolean; aObject : TObject; aI
 begin
   var lType := TRttiContext.Create.GetType(FObject.ClassInfo);
   var lPairs := TStringList.Create;
-  var lWhere := '';
   try
     for var lNotation in FNotations do
     begin
@@ -155,9 +160,9 @@ begin
         if lConstraint = TNotationConstraint.PK then
         begin
           if not aIsOwner then
-            lPairs.AddPair(FForeingKey, '')
+            lPairs.AddPair(FOwner.ForeignKey, '')
           else
-            lPairs.AddPair(lNotation.PropertyName, lType.GetProperty(lNotation.PropertyName).GetValue(FObject).AsInteger.ToString);
+            lPairs.AddPair(lNotation.DataSetFieldName, lType.GetProperty(lNotation.PropertyName).GetValue(FObject).AsInteger.ToString);
           Continue;
         end;
       end;
@@ -168,9 +173,8 @@ begin
       end;
     end;
 
-    var lStatement := TOrionNotationStatementValueUpdate.New(Self);
+    var lStatement := TOrionNotationStatementValueDelete.New(Self);
     lStatement.AddFields(lPairs);
-    lStatement.Value(lWhere);
 
     FBuildStatement.Add(lStatement);
     SetStatementItensInResult(FBuildStatement);
@@ -420,12 +424,13 @@ begin
   end;
 end;
 
-constructor TOrionNotation.Create;
+constructor TOrionNotation.Create(aOwner : iOrionNotation);
 begin
   FBuildStatement := TList<iNotationStatementValue>.Create;
   FStatementItens := TList<iNotationStatementValue>.Create;
   FNotations      := TList<TNotationData>.Create;
   FJoins          := TList<string>.Create;
+  FOwner          := aOwner;
 end;
 
 destructor TOrionNotation.Destroy;
@@ -496,14 +501,25 @@ begin
   end;
 end;
 
-class function TOrionNotation.New: iOrionNotation;
+class function TOrionNotation.New(aOwner : iOrionNotation): iOrionNotation;
 begin
-  Result := Self.Create;
+  Result := Self.Create(aOwner);
 end;
 
 function TOrionNotation.ObjectType: TClass;
 begin
   Result := FObjectType;
+end;
+
+function TOrionNotation.Owner(aValue: iOrionNotation): iOrionNotation;
+begin
+  Result := Self;
+  FOwner := aValue;
+end;
+
+function TOrionNotation.Owner: iOrionNotation;
+begin
+  Result := FOwner;
 end;
 
 function TOrionNotation.SetDataSet(aDataset: TDataset): iOrionNotation;
