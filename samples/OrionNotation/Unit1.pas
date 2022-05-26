@@ -149,12 +149,12 @@ begin
   FUserNotation := TOrionNotation.New;
   FContactNotation := TOrionNotation.New;
 
-  FContactNotation.TableName('USER_CONTACTS').ObjectType(TContact);
+  FContactNotation.TableName('USER_CONTACTS').ObjectType(TContact).ForeignKey('USER_CONT_ID_USER');;
   FContactNotation.AddNotation('ID', 'USER_CONT_ID', [TNotationConstraint.PK, TNotationConstraint.AutoInc]);
   FContactNotation.AddNotation('UserID', 'USER_CONT_ID_USER');
   FContactNotation.AddNotation('Description', 'USER_CONT_DESCRIPTION');
 
-  FUserNotation.TableName('USER').ForeignKey('USER_CONT_ID_USER');
+  FUserNotation.TableName('USER');
   FUserNotation.AddNotation('ID', 'USER_ID', [TNotationConstraint.PK, TNotationConstraint.AutoInc]);
   FUserNotation.AddNotation('Name', 'USER_NAME');
   FUserNotation.AddNotation('Salary', 'USER_SALARY');
@@ -169,7 +169,7 @@ begin
 
   var lNotationProcessor := TOrionNotationsProcessorsFactory.New.Build(TProcessorDataBase.SQLite);
   lNotationProcessor.Configurations(Path, UserName, Password, Server, Port);
-  FNotationDataEngine := TOrionNotationDataEngine.New(lNotationProcessor);
+  FNotationDataEngine := TOrionNotationDataEngine.New(lNotationProcessor, False);
 end;
 
 procedure TForm1.Log;

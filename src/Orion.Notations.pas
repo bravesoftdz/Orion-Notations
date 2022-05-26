@@ -4,7 +4,6 @@ interface
 
 uses
   Orion.Notations.Interfaces,
-  Orion.Notations.Types,
   Data.DB,
   System.Classes,
   System.Rtti,
@@ -160,7 +159,7 @@ begin
         if lConstraint = TNotationConstraint.PK then
         begin
           if not aIsOwner then
-            lPairs.AddPair(FOwner.ForeignKey, '')
+            lPairs.AddPair(ForeignKey, '')
           else
             lPairs.AddPair(lNotation.DataSetFieldName, lType.GetProperty(lNotation.PropertyName).GetValue(FObject).AsInteger.ToString);
           Continue;
@@ -266,10 +265,11 @@ end;
 
 function TOrionNotation.BuildSqLSelect(aSetByPK: boolean; aObject : TObject; aIsOwner : boolean = True): TList<iNotationStatementValue>;
 begin
-  if not Assigned(FObjectType) then
+  if not Assigned(FObjectType) and not (aIsOwner) then
     raise Exception.Create(Self.QualifiedClassName + '.BuildStatement: No one object type setted.');
 
   var lPairs := TStringList.Create;
+  var lWhere := TStringList.Create;
   var lPKFieldName := '';
   var lPKValue := 0;
   var lObjectListPropertyName : string;
@@ -282,17 +282,20 @@ begin
       begin
         if lConstraint = TNotationConstraint.PK then
         begin
-          lPKFieldName := lNotation.DataSetFieldName;
-          lPKValue := lType.GetProperty(lNotation.PropertyName).GetValue(aObject).AsInteger;
+          if not aIsOwner then
+            lWhere.AddPair(ForeignKey, '')
+          else
+          begin
+            lPKFieldName := lNotation.DataSetFieldName;
+            lPKValue := lType.GetProperty(lNotation.PropertyName).GetValue(aObject).AsInteger;
+            lWhere.AddPair(lPKFieldName, lPKValue.ToString);
+          end;
         end;
       end;
       if Assigned(lNotation.Notacao) then
       begin
         var lProperty := lType.GetProperty(lNotation.PropertyName);
         BuildSQLSelectList(lProperty.GetValue(aObject).AsObject, lNotation);
-
-        if (aIsOwner) and FForeingKey.IsEmpty then
-          raise Exception.Create(Self.QualifiedClassName+'.BuildStatement: No one ForeignKey setted for link with ' + lNotation.PropertyName);
 
         if aIsOwner then
           lStatement.AddObjectListPropertyName(lNotation.PropertyName);
@@ -302,13 +305,13 @@ begin
       lPairs.AddPair(lNotation.DataSetFieldName, '');
     end;
 
-
     lStatement.AddFields(lPairs);
+    lStatement.AddWhere(lWhere);
     for var lJoin in FJoins do
       lStatement.AddJoin(lJoin);
 
-    if aIsOwner then
-      lStatement.Value(' where ' + lPKFieldName + ' = ' + lPKValue.ToString);
+//    if aIsOwner then
+//      lStatement.Value(' where ' + lPKFieldName + ' = ' + lPKValue.ToString);
 
     FBuildStatement.Add(lStatement);
     SetStatementItensInResult(FBuildStatement);
@@ -322,6 +325,7 @@ function TOrionNotation.BuildSQLUpdate(aSetByPK: boolean; aObject : TObject; aIs
 begin
   var lType := TRttiContext.Create.GetType(aObject.ClassInfo);
   var lPairs := TStringList.Create;
+  var lWhere := TStringList.Create;
   var lPKValue := 0;
   var lPKFieldName := '';
   try
@@ -339,6 +343,7 @@ begin
 
           lPKValue := lPropertyPK.GetValue(aObject).AsInteger;
           lPKFieldName := lNotation.DataSetFieldName;
+          lWhere.AddPair(lPKFieldName, lPKValue.ToString);
         end;
 
         if lConstraint = TNotationConstraint.IgnoreWriteSQLs then
@@ -360,7 +365,8 @@ begin
 
     var lStatement := TOrionNotationStatementValueUpdate.New(Self);
     lStatement.AddFields(lPairs);
-    lStatement.Value(' where ' + lPKFieldName + ' = ' + lPKValue.ToString);
+    lStatement.AddWhere(lWhere);
+//    lStatement.Value(' where ' + lPKFieldName + ' = ' + lPKValue.ToString);
 
     FBuildStatement.Add(lStatement);
     SetStatementItensInResult(FBuildStatement);
@@ -547,6 +553,7 @@ end;
 
 function TOrionNotation.ObjectType(aObjectType: TClass): iOrionNotation;
 begin
+  Result := Self;
   FObjectType := aObjectType;
 end;
 

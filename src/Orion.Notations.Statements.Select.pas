@@ -12,6 +12,7 @@ type
   private
     FValue : string;
     FPairs : TStringList;
+    FWhere : TStringList;
     FJoins : TStringList;
     [weak]
     FNotation : iOrionNotation;
@@ -24,6 +25,8 @@ type
 
     procedure AddFields(aValue : TStringList);
     procedure UpdateField(aName, aValue : string);
+    procedure AddWhere(aValue : TStringList);
+    procedure UpdateWhere(aName, aValue : string);
     procedure AddJoin(aValue : string);
     function GetPairValue(aPairName : string) : string;
     procedure Value(aValue : string); overload;
@@ -59,6 +62,9 @@ begin
   if Assigned(FPairs) then
     FPairs.DisposeOf;
 
+  if Assigned(FWhere) then
+    FWhere.DisposeOf;
+
   FJoins.DisposeOf;
   FObjectListPropertyNames.DisposeOf;
   inherited;
@@ -89,9 +95,19 @@ begin
   FObjectListPropertyNames.Add(aValue);
 end;
 
+procedure TOrionNotationStatementValueSelect.AddWhere(aValue: TStringList);
+begin
+  FWhere := aValue;
+end;
+
 procedure TOrionNotationStatementValueSelect.UpdateField(aName, aValue: string);
 begin
   FPairs.Values[aName] := aValue;
+end;
+
+procedure TOrionNotationStatementValueSelect.UpdateWhere(aName, aValue: string);
+begin
+  FWhere.Values[aName] := aValue;
 end;
 
 function TOrionNotationStatementValueSelect.Value: string;
@@ -110,7 +126,7 @@ begin
   begin
     lJoins := lJoins + ' ' + lJoin;
   end;
-  Result := 'select ' + lFields + ' from ' + FNotation.TableName + ' ' + lJoins + FValue;
+  Result := 'select ' + lFields + ' from ' + FNotation.TableName + ' ' + lJoins + ' where ' + FWhere.Text;
 end;
 
 procedure TOrionNotationStatementValueSelect.Value(aValue: string);

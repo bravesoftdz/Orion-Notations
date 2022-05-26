@@ -155,7 +155,7 @@ begin
     begin
       if I > 0 then
       begin
-        FStatementsValues.Items[i].UpdateField(FNotation.ForeignKey, FPrimaryKeyValue);
+        FStatementsValues.Items[i].UpdateField(FStatementsValues.Items[i].Notation.ForeignKey, FPrimaryKeyValue);
         FNotationProcessor.StatementType(TDataProcessorStatementType.Write);
       end;
 
@@ -185,13 +185,13 @@ begin
       Exit;
 
     FNotationProcessor.StartTransaction;
-    FNotationProcessor.StatementType(TDataProcessorStatementType.Write);
+    FNotationProcessor.StatementType(TDataProcessorStatementType.WriteWithReturn);
 
     for var I := 0 to Pred(FStatementsValues.Count) do
     begin
       if I > 0 then
       begin
-        FStatementsValues.Items[i].UpdateField(FNotation.ForeignKey, FPrimaryKeyValue);
+        FStatementsValues.Items[i].UpdateField(FStatementsValues.Items[i].Notation.ForeignKey, FPrimaryKeyValue);
         FNotationProcessor.StatementType(TDataProcessorStatementType.Write);
       end;
 
@@ -222,6 +222,7 @@ end;
 
 procedure TOrionNotationDataEngine.ProcessStatementSelect;
 begin
+  FPrimaryKeyValue := '';
   FStatementsValues := FNotation.BuildStatement(TStatementType.Select);
   try
     if FStatementsValues.Count = 0 then
@@ -232,7 +233,7 @@ begin
     begin
       if I > 0 then
       begin
-        FStatementsValues.Items[i].Value(' where ' + FNotation.ForeignKey + ' = ' + FPrimaryKeyValue);
+        FStatementsValues.Items[i].UpdateWhere(FStatementsValues.Items[i].Notation.ForeignKey, FPrimaryKeyValue); //(' where ' + FNotation.ForeignKey + ' = ' + FPrimaryKeyValue);
         FNotationProcessor.StateMent(FStatementsValues.Items[i].Value);
         FNotationProcessor.Execute;
         for var lObjectListPropertyName in FStatementsValues.Items[0].GetObjectListPropertyName do
@@ -274,7 +275,7 @@ begin
     begin
       if I > 0 then
       begin
-        FStatementsValues.Items[i].UpdateField(FNotation.ForeignKey, FPrimaryKeyValue);
+        FStatementsValues.Items[i].UpdateField(FStatementsValues.Items[i].Notation.ForeignKey, FPrimaryKeyValue);
         FNotationProcessor.StatementType(TDataProcessorStatementType.Write);
       end;
 

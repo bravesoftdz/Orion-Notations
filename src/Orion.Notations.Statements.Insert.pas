@@ -11,6 +11,7 @@ type
   private
     FValue : string;
     FPairs : TStringList;
+    FWhere : TStringList;
     [weak]
     FNotation : iOrionNotation;
   public
@@ -21,6 +22,8 @@ type
 
     procedure AddFields(aValue : TStringList);
     procedure UpdateField(aName, aValue : string);
+    procedure AddWhere(aValue : TStringList);
+    procedure UpdateWhere(aName, aValue : string);
     procedure AddJoin(aValue : string);
     function GetPairValue(aPairName : string) : string;
     procedure Value(aValue : string); overload;
@@ -53,6 +56,9 @@ destructor TOrionNotationStatementValueInsert.Destroy;
 begin
   if Assigned(FPairs) then
     FPairs.DisposeOf;
+
+  if Assigned(FWhere) then
+    FWhere.DisposeOf;
   inherited;
 end;
 
@@ -81,14 +87,19 @@ begin
 
 end;
 
+procedure TOrionNotationStatementValueInsert.AddWhere(aValue: TStringList);
+begin
+  FWhere := aValue;
+end;
+
 procedure TOrionNotationStatementValueInsert.UpdateField(aName, aValue: string);
 begin
-  var lIndex := -1;
-  FPairs.Find(aName, lIndex);
-  if lIndex = -1 then
-    Exit;
+  FPairs.Values[aName] := aValue;
+end;
 
-  FPairs.ValueFromIndex[lIndex] := aValue;
+procedure TOrionNotationStatementValueInsert.UpdateWhere(aName, aValue: string);
+begin
+  FWhere.Values[aName] := aValue;
 end;
 
 function TOrionNotationStatementValueInsert.Value: string;
@@ -105,7 +116,7 @@ begin
       lFieldValues := lFieldValues + ', ';
     end;
   end;
-  Result := 'insert into ' + FNotation.TableName + ' (' + lFieldNames + ') values (' + lFieldValues + ')' + FValue;
+  Result := 'insert into ' + FNotation.TableName + ' (' + lFieldNames + ') values (' + lFieldValues + ') ' + FValue;
 end;
 
 procedure TOrionNotationStatementValueInsert.Value(aValue: string);

@@ -11,6 +11,7 @@ type
   private
     FValue : string;
     FPairs : TStringList;
+    FWhere : TStringList;
     [weak]
     FNotation : iOrionNotation;
   public
@@ -21,6 +22,8 @@ type
 
     procedure AddFields(aValue : TStringList);
     procedure UpdateField(aName, aValue : string);
+    procedure AddWhere(aValue : TStringList);
+    procedure UpdateWhere(aName, aValue : string);
     procedure AddJoin(aValue : string);
     function GetPairValue(aPairName : string) : string;
     procedure Value(aValue : string); overload;
@@ -53,6 +56,9 @@ destructor TOrionNotationStatementValueUpdate.Destroy;
 begin
   if Assigned(FPairs) then
     FPairs.DisposeOf;
+
+  if Assigned(FWhere) then
+    FWhere.DisposeOf;
   inherited;
 end;
 
@@ -81,9 +87,19 @@ begin
 
 end;
 
+procedure TOrionNotationStatementValueUpdate.AddWhere(aValue: TStringList);
+begin
+  FWhere := aValue;
+end;
+
 procedure TOrionNotationStatementValueUpdate.UpdateField(aName, aValue: string);
 begin
   FPairs.Values[aName] := aValue;
+end;
+
+procedure TOrionNotationStatementValueUpdate.UpdateWhere(aName, aValue: string);
+begin
+  FWhere.Values[aName] := aValue;
 end;
 
 function TOrionNotationStatementValueUpdate.Value: string;
@@ -96,7 +112,7 @@ begin
     else
       lFields := lFields + FPairs[I] + ', ';
   end;
-  Result := 'update ' + FNotation.TableName + ' set ' + lFields + FValue;
+  Result := 'update ' + FNotation.TableName + ' set ' + lFields + ' where ' + FWhere.Text;
 end;
 
 procedure TOrionNotationStatementValueUpdate.Value(aValue: string);

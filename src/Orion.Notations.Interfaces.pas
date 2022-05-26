@@ -77,6 +77,8 @@ type
     ['{7FB8E95B-63AA-4DA4-A615-5C1AD6A1F9C4}']
     procedure AddFields(aValue : TStringList);
     procedure UpdateField(aName, aValue : string);
+    procedure AddWhere(aValue : TStringList);
+    procedure UpdateWhere(aName, aValue : string);
     procedure AddJoin(aValue : string);
     function GetPairValue(aPairName : string) : string;
     procedure Value(aValue : string); overload;
