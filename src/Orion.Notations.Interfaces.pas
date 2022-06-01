@@ -44,6 +44,7 @@ type
     function AddNotation(aPropertyName : string; aNotation : iOrionNotation) : iOrionNotation; overload;
     function BuildStatement(aSQLType : TStatementType; aIsOwner : Boolean = True) : TList<iNotationStatementValue>;
     function AddJoin(aValue : string) : iOrionNotation;
+    function AddWhere(aValue : string) : iOrionNotation;
     function GetPKTableName : string;
     function GetTableFieldNameByPropertyName(aPropertyName : string) : string;
     function GetNotationsList : TList<TNotationData>;
@@ -77,7 +78,7 @@ type
     ['{7FB8E95B-63AA-4DA4-A615-5C1AD6A1F9C4}']
     procedure AddFields(aValue : TStringList);
     procedure UpdateField(aName, aValue : string);
-    procedure AddWhere(aValue : TStringList);
+    procedure AddWhere(aValue : TStringList; aIsPair : boolean = True);
     procedure UpdateWhere(aName, aValue : string);
     procedure AddJoin(aValue : string);
     function GetPairValue(aPairName : string) : string;

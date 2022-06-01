@@ -22,7 +22,7 @@ type
 
     procedure AddFields(aValue : TStringList);
     procedure UpdateField(aName, aValue : string);
-    procedure AddWhere(aValue : TStringList);
+    procedure AddWhere(aValue : TStringList; aIsPair : boolean = True);
     procedure UpdateWhere(aName, aValue : string);
     procedure AddJoin(aValue : string);
     function GetPairValue(aPairName : string) : string;
@@ -87,7 +87,7 @@ begin
 
 end;
 
-procedure TOrionNotationStatementValueInsert.AddWhere(aValue: TStringList);
+procedure TOrionNotationStatementValueInsert.AddWhere(aValue : TStringList; aIsPair : boolean = True);
 begin
   FWhere := aValue;
 end;

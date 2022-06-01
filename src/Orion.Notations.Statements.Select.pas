@@ -13,6 +13,7 @@ type
     FValue : string;
     FPairs : TStringList;
     FWhere : TStringList;
+    FIsPair : Boolean;
     FJoins : TStringList;
     [weak]
     FNotation : iOrionNotation;
@@ -25,7 +26,7 @@ type
 
     procedure AddFields(aValue : TStringList);
     procedure UpdateField(aName, aValue : string);
-    procedure AddWhere(aValue : TStringList);
+    procedure AddWhere(aValue : TStringList; aIsPair : boolean = True);
     procedure UpdateWhere(aName, aValue : string);
     procedure AddJoin(aValue : string);
     function GetPairValue(aPairName : string) : string;
@@ -95,9 +96,10 @@ begin
   FObjectListPropertyNames.Add(aValue);
 end;
 
-procedure TOrionNotationStatementValueSelect.AddWhere(aValue: TStringList);
+procedure TOrionNotationStatementValueSelect.AddWhere(aValue : TStringList; aIsPair : boolean = True);
 begin
   FWhere := aValue;
+  FIsPair := aIsPair;
 end;
 
 procedure TOrionNotationStatementValueSelect.UpdateField(aName, aValue: string);

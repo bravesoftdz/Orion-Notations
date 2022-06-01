@@ -198,11 +198,8 @@ begin
       FNotationProcessor.StateMent(FStatementsValues.Items[i].Value);
       FNotationProcessor.Execute;
 
-      if FStatementsValues.Count > 1 then
-      begin
-        if FPrimaryKeyValue.IsEmpty then
-          FPrimaryKeyValue := FNotationProcessor.Dataset.FieldByName(FNotation.GetPKTableName).AsString;
-      end;
+      if FPrimaryKeyValue.IsEmpty then
+        FPrimaryKeyValue := FNotationProcessor.Dataset.FieldByName(FNotation.GetPKTableName).AsString;
     end;
     if FPersist then
       FNotationProcessor.Commit;
@@ -246,11 +243,9 @@ begin
       FNotationProcessor.StateMent(FStatementsValues.Items[i].Value);
       FNotationProcessor.Execute;
       InternalResolveToObject(FNotation.GetObject, FNotation, FNotationProcessor.Dataset);
-      if FStatementsValues.Count > 1 then
-      begin
-        if FPrimaryKeyValue.IsEmpty then
-          FPrimaryKeyValue := FNotationProcessor.Dataset.FieldByName(FNotation.GetPKTableName).AsString;
-      end;
+
+      if FPrimaryKeyValue.IsEmpty then
+        FPrimaryKeyValue := FNotationProcessor.Dataset.FieldByName(FNotation.GetPKTableName).AsString;
     end;
   except on E: Exception do
     begin

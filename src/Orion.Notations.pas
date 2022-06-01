@@ -19,6 +19,7 @@ type
     FObjectType : TClass;
     FTableName : string;
     FJoins : TList<string>;
+    FWhere : string;
     FNotations : TList<TNotationData>;
     FBuildStatement : TList<iNotationStatementValue>;
     FStatementItens : TList<iNotationStatementValue>;
@@ -57,6 +58,7 @@ type
     function AddNotation(aPropertyName : string; aNotation : iOrionNotation) : iOrionNotation; overload;
     function BuildStatement(aSQLType : TStatementType; aIsOwner : Boolean = True) : TList<iNotationStatementValue>;
     function AddJoin(aValue : string) : iOrionNotation;
+    function AddWhere(aValue : string) : iOrionNotation;
     function GetPKTableName : string;
     function GetTableFieldNameByPropertyName(aPropertyName : string) : string;
     function GetNotationsList : TList<TNotationData>;
@@ -145,6 +147,12 @@ begin
     tkProcedure   : raise Exception.Create(Self.QualifiedClassName + '.BuildSQLUpdate : Tipo tkProcedure não implementado.');
     tkMRecord     : raise Exception.Create(Self.QualifiedClassName + '.BuildSQLUpdate : Tipo tkRecord não implementado.');
   end;
+end;
+
+function TOrionNotation.AddWhere(aValue: string): iOrionNotation;
+begin
+  Result := Self;
+  FWhere := aValue;
 end;
 
 function TOrionNotation.BuildSqLDelete(aSetByPK : boolean; aObject : TObject; aIsOwner : boolean = True): TList<iNotationStatementValue>;
@@ -286,9 +294,12 @@ begin
             lWhere.AddPair(ForeignKey, '')
           else
           begin
-            lPKFieldName := lNotation.DataSetFieldName;
-            lPKValue := lType.GetProperty(lNotation.PropertyName).GetValue(aObject).AsInteger;
-            lWhere.AddPair(lPKFieldName, lPKValue.ToString);
+            if FWhere.IsEmpty then
+            begin
+              lPKFieldName := lNotation.DataSetFieldName;
+              lPKValue := lType.GetProperty(lNotation.PropertyName).GetValue(aObject).AsInteger;
+              lWhere.AddPair(lPKFieldName, lPKValue.ToString);
+            end;
           end;
         end;
       end;
@@ -306,7 +317,14 @@ begin
     end;
 
     lStatement.AddFields(lPairs);
-    lStatement.AddWhere(lWhere);
+    if not (FWhere.IsEmpty) then
+    begin
+      lWhere.Add(FWhere);
+      lStatement.AddWhere(lWhere);
+    end
+    else
+      lStatement.AddWhere(lWhere);
+
     for var lJoin in FJoins do
       lStatement.AddJoin(lJoin);
 
