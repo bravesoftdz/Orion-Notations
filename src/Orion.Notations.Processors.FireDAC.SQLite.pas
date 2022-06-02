@@ -82,8 +82,6 @@ begin
   FDBConnection.Params.Password := aPassword;
   FDBConnection.Params.AddPair('Port', aPort.ToString);
   FDBConnection.Params.AddPair('LockingMode', 'Normal');
-  FDBConnection.Connected := False;
-  FDBConnection.Connected := True;
 end;
 
 constructor TOrionNotationsProcessorFireDACSQLite.Create;

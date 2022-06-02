@@ -76,8 +76,6 @@ begin
   FDBConnection.Params.UserName := aUserName;
   FDBConnection.Params.Password := aPassword;
   FDBConnection.Params.AddPair('Port', aPort.ToString);
-  FDBConnection.Connected := False;
-  FDBConnection.Connected := True;
 end;
 
 constructor TOrionNotationsProcessorFireDACFirebird.Create;

@@ -85,8 +85,8 @@ begin
   try
     User.ID        := 2;
     User.Name      := 'Ricardo Alterado';
-    User.Salary    := 100.2;
-    User.BirthDate := StrToDate('24/06/1987');
+//    User.Salary    := 100.2;
+//    User.BirthDate := StrToDate('24/06/1987');
 
     var lContact         := TContact.Create;
     lContact.ID          := 1;

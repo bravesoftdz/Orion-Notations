@@ -184,7 +184,9 @@ begin
     if FStatementsValues.Count = 0 then
       Exit;
 
-    FNotationProcessor.StartTransaction;
+    if FPersist then
+      FNotationProcessor.StartTransaction;
+
     FNotationProcessor.StatementType(TDataProcessorStatementType.WriteWithReturn);
 
     for var I := 0 to Pred(FStatementsValues.Count) do
@@ -196,10 +198,13 @@ begin
       end;
 
       FNotationProcessor.StateMent(FStatementsValues.Items[i].Value);
-      FNotationProcessor.Execute;
+      if FPersist then
+      begin
+        FNotationProcessor.Execute;
 
-      if FPrimaryKeyValue.IsEmpty then
-        FPrimaryKeyValue := FNotationProcessor.Dataset.FieldByName(FNotation.GetPKTableName).AsString;
+        if FPrimaryKeyValue.IsEmpty then
+          FPrimaryKeyValue := FNotationProcessor.Dataset.FieldByName(FNotation.GetPKTableName).AsString;
+      end;
     end;
     if FPersist then
       FNotationProcessor.Commit;
@@ -263,7 +268,8 @@ begin
     if FStatementsValues.Count = 0 then
       Exit;
 
-    FNotationProcessor.StartTransaction;
+    if FPersist then
+      FNotationProcessor.StartTransaction;
     FNotationProcessor.StatementType(TDataProcessorStatementType.Write);
 
     for var I := 0 to Pred(FStatementsValues.Count) do
@@ -275,10 +281,13 @@ begin
       end;
 
       FNotationProcessor.StateMent(FStatementsValues.Items[i].Value);
-      FNotationProcessor.Execute;
+      if FPersist then
+      begin
+        FNotationProcessor.Execute;
 
-      if (FStatementsValues.Count > 1) and (I = 0) then
-          FPrimaryKeyValue := FStatementsValues.Items[I].GetPairValue(FNotation.GetPKTableName);
+        if (FStatementsValues.Count > 1) and (I = 0) then
+            FPrimaryKeyValue := FStatementsValues.Items[I].GetPairValue(FNotation.GetPKTableName);
+      end;
     end;
 
     if FPersist then

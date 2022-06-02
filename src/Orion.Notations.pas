@@ -62,6 +62,7 @@ type
     function GetPKTableName : string;
     function GetTableFieldNameByPropertyName(aPropertyName : string) : string;
     function GetNotationsList : TList<TNotationData>;
+    function Version : string;
   end;
 
 implementation
@@ -72,6 +73,9 @@ uses
   Orion.Notations.Statements.Update,
   Orion.Notations.Statements.Select,
   Orion.Notations.Statements.Delete;
+
+const
+  ORION_NOTATIONS_VERSION = '1.1.3';
 
 { TOrionNotation }
 
@@ -107,22 +111,41 @@ begin
 
     tkInteger     : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsInteger.ToString);
     tkInt64       : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsInt64.ToString);
-    tkWChar       : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
-    tkLString     : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
-    tkWString     : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
-    tkUString     : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
-    tkString      : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
-    tkChar        : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
-    tkVariant     : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
+    tkLString, tkWString, tkUString, tkString, tkChar, tkVariant :
+    begin
+      var lValue := aProperty.GetValue(aObject).AsString;
+      if (lValue.IsEmpty) then
+        aPairs.AddPair(aNotation.DataSetFieldName, 'NULL')
+      else
+        aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
+    end;
+
+//    tkWString     : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
+//    tkUString     : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
+//    tkString      : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
+//    tkChar        : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
+//    tkVariant     : aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(aObject).AsString.QuotedString);
     tkFloat       :
     begin
       if aIsDateField then
       begin
-        var lData := FormatDateTime('dd.mm.yyyy', FloatToDateTime(aProperty.GetValue(Pointer(FObject)).AsExtended)).QuotedString;
+        var lData : string;
+        if aProperty.GetValue(Pointer(FObject)).AsExtended = 0 then
+          lData := 'NULL'
+        else
+          lData := FormatDateTime('dd.mm.yyyy', FloatToDateTime(aProperty.GetValue(Pointer(FObject)).AsExtended)).QuotedString;
         aPairs.AddPair(aNotation.DataSetFieldName, lData);
       end
       else
-       aPairs.AddPair(aNotation.DataSetFieldName, aProperty.GetValue(Pointer(FObject)).AsExtended.ToString.Replace(',', '.', [rfReplaceAll]));
+      begin
+        var lValue : string;
+        if aProperty.GetValue(Pointer(FObject)).AsExtended = 0 then
+          lValue := 'NULL'
+        else
+          lValue := aProperty.GetValue(Pointer(FObject)).AsExtended.ToString.Replace(',', '.', [rfReplaceAll]);
+
+        aPairs.AddPair(aNotation.DataSetFieldName, lValue);
+      end;
     end;
     tkClass       :
     begin
@@ -590,6 +613,11 @@ end;
 function TOrionNotation.TableName: string;
 begin
   Result := FTableName;
+end;
+
+function TOrionNotation.Version: string;
+begin
+  Result := ORION_NOTATIONS_VERSION;
 end;
 
 function TOrionNotation.TableName(aValue: string): iOrionNotation;

@@ -48,6 +48,7 @@ type
     function GetPKTableName : string;
     function GetTableFieldNameByPropertyName(aPropertyName : string) : string;
     function GetNotationsList : TList<TNotationData>;
+    function Version : string;
   end;
 
   iOrionNotationProcessor = interface
